@@ -419,12 +419,18 @@ namespace
     }
 
     // Reads what kind of trainer a creature is from the trainer tables: class trainers carry
-    // their class, profession trainers are recognised by the skills their spells belong to.
-    void ClassifyTrainer(Entry& entry)
+    // their class, profession trainers and weapon masters are recognised by the skills their
+    // spells belong to.
+    void ClassifyTrainer(Entry& entry, uint32 npcflag)
     {
         Trainer::Trainer* trainer = sObjectMgr->GetTrainer(entry.id);
         if (!trainer)
+        {
+            // Since 3.0 pet trainers only reset pet talents, and many have no trainer data left.
+            if ((npcflag & UNIT_NPC_FLAG_TRAINER) && Lower(entry.subname) == "pet trainer")
+                entry.trainer = TrainerKind::Pet;
             return;
+        }
 
         std::map<uint32, uint32> votes;
         std::map<uint32, uint8> ranks;
@@ -435,20 +441,22 @@ namespace
             CollectSkills(spell.SpellId, votes, ranks, true);
         }
 
+        // Weapon masters are stored as class or as tradeskill trainers, depending on the data.
+        if (std::any_of(votes.begin(), votes.end(), [](auto const& vote) { return IsWeaponSkill(vote.first); }))
+        {
+            entry.trainer = TrainerKind::WeaponMaster;
+            return;
+        }
+
         switch (trainer->GetTrainerType())
         {
             case Trainer::Type::Class:
-            {
-                bool weapons = std::any_of(votes.begin(), votes.end(), [](auto const& vote) { return IsWeaponSkill(vote.first); });
-                if (weapons)
-                    entry.trainer = TrainerKind::WeaponMaster;
-                else if (trainer->GetTrainerRequirement())
+                if (trainer->GetTrainerRequirement())
                 {
                     entry.trainer = TrainerKind::Class;
                     entry.trainerValue = trainer->GetTrainerRequirement();
                 }
                 break;
-            }
             case Trainer::Type::Mount:
                 entry.trainer = TrainerKind::Riding;
                 break;
@@ -627,7 +635,7 @@ namespace
                 entry.name = creature->Name;
                 entry.subname = creature->SubName;
                 entry.faction = creature->faction;
-                ClassifyTrainer(entry);
+                ClassifyTrainer(entry, npcflag);
                 entry.search = BuildSearchText(entry, npcflag);
                 townIndex.entries.push_back(std::move(entry));
             }
