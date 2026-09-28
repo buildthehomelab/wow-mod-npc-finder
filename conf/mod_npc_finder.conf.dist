@@ -1,0 +1,76 @@
+[worldserver]
+
+########################################
+# mod-npc-finder
+#
+# The Town Guide: cast it (or type .find) to search for friendly NPCs by name, title or zone, or
+# to pick a category such as your class trainer, a profession trainer or the bank. The chosen
+# place is flagged on the player's map.
+########################################
+
+#
+#    NpcFinder.Enable
+#        Description: Master switch. 0 turns the menu, the .find command and the spell off.
+#        Default:     1
+#
+
+NpcFinder.Enable = 1
+
+#
+#    NpcFinder.SpellId
+#        Description: The Town Guide spell. It must exist on the client (the realm patch built with
+#                     client/build_patch.py) and in the server's spell_dbc table (the module's SQL).
+#                     0 leaves the spell out; .find still works.
+#        Default:     90050
+#
+
+NpcFinder.SpellId = 90050
+
+#
+#    NpcFinder.LearnSpell
+#        Description: Teach every character the Town Guide spell when they log in. Players whose
+#                     client patch doesn't have the spell yet see an empty spellbook slot, so turn
+#                     this on once the new patch is out.
+#        Default:     1
+#
+
+NpcFinder.LearnSpell = 1
+
+#
+#    NpcFinder.ResultsPerPage
+#        Description: Results on one page of the menu (1-25).
+#        Default:     10
+#
+
+NpcFinder.ResultsPerPage = 10
+
+#
+#    NpcFinder.MaxResults
+#        Description: Most results a search returns, nearest first.
+#        Default:     60
+#
+
+NpcFinder.MaxResults = 60
+
+#
+#    NpcFinder.HideLockedContinents
+#        Description: With mod-individual-progression on, leave out Outland until the player
+#                     reaches the TBC stage, the Isle of Quel'Danas until Sunwell, and Northrend
+#                     until WotLK. The blood elf and draenei starting zones are always shown.
+#                     Game masters always see everything.
+#        Default:     1
+#
+
+NpcFinder.HideLockedContinents = 1
+
+#
+#    NpcFinder.SaveZoneData
+#        Description: The stock database has no zone for most spawns, so on its first start the
+#                     module works zones out from the map files, which takes a little while. 1
+#                     writes them to the creature and gameobject tables' zoneId/areaId columns
+#                     (as the core's Calculate.Creature.Zone.Area.Data does), so later starts
+#                     are quick.
+#        Default:     1
+#
+
+NpcFinder.SaveZoneData = 1
