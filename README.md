@@ -35,6 +35,15 @@ continents, so NPCs other modules or you have added are found like any other:
 
 If an NPC stands in several spots in one zone (a wandering guard), only the nearest one is shown.
 
+## Requirements
+
+- [AzerothCore](https://www.azerothcore.org/) wotlk (master) and a WoW 3.3.5a (12340) client.
+- The client patch for the Town Guide spell (see *Client* below). Python 3 and
+  [StormLib](https://github.com/ladislav-zezula/StormLib) are needed to build it. `.find` works
+  without the patch.
+- Optional: [mod-individual-progression](https://github.com/ZhengPeiRu21/mod-individual-progression)
+  to hide continents the player hasn't reached yet.
+
 ## Install
 
 ### Server
@@ -120,6 +129,25 @@ See `conf/mod_npc_finder.conf.dist`:
   coordinates in chat.
 - Names are the database's English names.
 
+## Troubleshooting
+
+- **The Town Guide spell is blank in the spellbook.** The client only knows spells in its own
+  `Spell.dbc`, so the player needs the client patch MPQ in `World of Warcraft/Data/`. `.find` works
+  without it.
+- **The first start is slow.** The module works out the zone of every spawn from the map files and
+  saves it to the `creature` and `gameobject` tables (`NpcFinder.SaveZoneData`). Later starts read
+  the saved zones back.
+- **An NPC added with `.npc add` isn't found.** The spawn list is read once at startup, so
+  restart the worldserver.
+- **No map flag appears.** The flag only works on the continent you're on; for other continents
+  you get the zone and coordinates in chat.
+- **Outland or Northrend results are missing.** With mod-individual-progression they stay hidden
+  until the player reaches that stage. Set `NpcFinder.HideLockedContinents = 0` to show them.
+
+## Credits
+
+Author: [buildthehomelab](https://github.com/buildthehomelab)
+
 ## License
 
-MIT
+MIT, see [LICENSE](LICENSE).
