@@ -68,7 +68,8 @@ tables (`NpcFinder.SaveZoneData`). Later starts read them back.
 
 Town Guide is a new spell, and the 3.3.5 client only knows spells in its own `Spell.dbc`. A patch
 MPQ replaces the whole file, so the spell has to go into the `Spell.dbc` your realm patch already
-ships. `client/build_patch.py` adds it (it needs Python 3 and [StormLib](https://github.com/ladislav-zezula/StormLib)):
+ships. `client/build_patch.py` adds it (it needs Python 3 and [StormLib](https://github.com/ladislav-zezula/StormLib)).
+`patch-P.MPQ` below is an example name; use your own patch's:
 
 ```bash
 python3 client/build_patch.py --from-mpq patch-P.MPQ --out patch-P.MPQ.new
