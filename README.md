@@ -1,5 +1,12 @@
 # NPC Finder (Town Guide)
 
+> **This module has moved into [mod-forever-journal](https://github.com/buildthehomelab/wow-mod-forever-journal).**
+> The town guide is now the Journal's **Directory** tab, with the same search, categories and map
+> flags in a window, and the same Town Guide spell (90050), `.find` command and gossip menu for
+> players without the addon. See its README's "Upgrading from mod-npc-finder": take this module out
+> of the build before you add the Directory, since both register `.find` and the spell. This
+> repository is kept for reference and gets no more changes.
+
 An [AzerothCore](https://www.azerothcore.org/) (WotLK 3.3.5a) module that gives every player a
 **Town Guide** spell. Cast it and a menu opens where you can:
 
