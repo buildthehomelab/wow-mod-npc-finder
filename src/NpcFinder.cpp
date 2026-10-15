@@ -301,7 +301,14 @@ namespace
     {
         std::vector<uint32> results; // indexes into Index::places
         uint32 page = 0;
+        uint32 lastSearch = 0; // getMSTime() of the last text search
     };
+
+    // A search tests every word against every place on the world thread, and the gossip box carries
+    // up to ~10 KB of text; nobody types more than a few words, or searches more than once a second.
+    constexpr size_t MAX_SEARCH_LENGTH = 64;
+    constexpr size_t MAX_SEARCH_WORDS = 6;
+    constexpr uint32 SEARCH_COOLDOWN_MS = 1000;
 
     // Bots are sessions without a socket. AzerothCore marks them with WorldSession::IsHeadless();
     // older playerbots core forks have WorldSession::IsBot() instead, and older stock cores have
@@ -336,20 +343,30 @@ namespace
         return out;
     }
 
+    // Single letters match nearly everything, so they're dropped; so are repeats.
     std::vector<std::string> Words(std::string_view text)
     {
+        if (text.size() > MAX_SEARCH_LENGTH)
+        {
+            size_t cut = MAX_SEARCH_LENGTH;
+            while (cut > 0 && (static_cast<unsigned char>(text[cut]) & 0xC0) == 0x80) // not inside a UTF-8 character
+                --cut;
+            text = text.substr(0, cut);
+        }
+
         std::vector<std::string> words;
         std::string lower = Lower(text);
         size_t pos = 0;
-        while (pos < lower.size())
+        while (pos < lower.size() && words.size() < MAX_SEARCH_WORDS)
         {
             while (pos < lower.size() && std::isspace((unsigned char)lower[pos]))
                 ++pos;
             size_t end = pos;
             while (end < lower.size() && !std::isspace((unsigned char)lower[end]))
                 ++end;
-            if (end > pos)
-                words.emplace_back(lower.substr(pos, end - pos));
+            std::string word = lower.substr(pos, end - pos);
+            if (word.size() > 1 && std::find(words.begin(), words.end(), word) == words.end())
+                words.push_back(std::move(word));
             pos = end;
         }
         return words;
@@ -1109,9 +1126,20 @@ namespace
         query.words = Words(text);
         if (query.words.empty())
         {
+            if (text.find_first_not_of(" \t\r\n") != std::string_view::npos)
+                ChatHandler(player->GetSession()).SendSysMessage("Search with words of at least two letters.");
             ShowMainMenu(player);
             return;
         }
+
+        FinderState& state = GetState(player);
+        uint32 now = getMSTime();
+        if (state.lastSearch && getMSTimeDiff(state.lastSearch, now) < SEARCH_COOLDOWN_MS)
+        {
+            ChatHandler(player->GetSession()).SendSysMessage("Wait a moment before searching again.");
+            return;
+        }
+        state.lastSearch = now;
 
         RunQuery(player, query);
     }

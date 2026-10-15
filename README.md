@@ -15,6 +15,9 @@ first; places on other continents are listed with their coordinates.
 
 `.find` opens the same menu, and `.find <words>` searches straight away.
 
+A search uses the first 64 characters and up to 6 words (single letters are skipped), and one
+player can search once a second: each search checks every place on the world thread.
+
 ## Built from your server's data
 
 Nothing is hard-coded. At startup the module reads every creature and object spawn on the
